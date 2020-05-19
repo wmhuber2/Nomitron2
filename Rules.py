@@ -6,7 +6,7 @@ import pickle, sys, urllib
 """
 Main Run Function On Messages
 """
-async def on_message(Data, chan, server, payload):
+async def on_message(Data, channels, server, payload):
 
     # Do Stuff Here
     message = payload['raw']
@@ -85,10 +85,7 @@ async def on_message(Data, chan, server, payload):
 Setup Log Parameters and Channel List And Whatever You Need to Check on a Bot Reset.
 Handles Change In Server Structure and the like. Probably Can Leave Alone.
 """
-async def setup(Data, chan, server, payload):
-    global channels
-    channels = chan
-
+async def setup(Data, channels, server, payload):
     # Do Stuff Here
     Data[server.id]['RuleList'] = {}
     with urllib.request.urlopen('https://raw.githubusercontent.com/dmouscher/nomic/master/rules-3.md') as response:
