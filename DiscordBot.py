@@ -51,7 +51,7 @@ class DiscordNomicBot():
             self.Data['DisabledModules'] = {}
             self.saveData()
 
-        self.token = open('/home/nomitron/secret.psk','r').read().strip()
+        self.token = open('/home/nomitron/secret.psk','r').readlines()[0].strip()
         print("Using Token: ..." + self.token[-6:])
 
         @self.client.event
@@ -136,14 +136,14 @@ class DiscordNomicBot():
         self.printInfo()
 
         for server in self.client.guilds:
-            await self.passToModule('setup', server, self.servertree[server.id], None)
+            await self.passToModule('setup', server, self.servertree, None)
         self.saveData()
 
         while 1:
             sys.stdout.flush()
             await asyncio.sleep(30)
             for server in self.client.guilds:
-                await self.passToModule('update', server, self.servertree[server.id], None)
+                await self.passToModule('update', server, self.servertree, None)
             self.saveData()
 
     """
@@ -155,8 +155,8 @@ class DiscordNomicBot():
         if message.author == self.client.user: return
 
         await self.passToModule('on_message',
-                                message.server,
-                                self.servertree[message.server.id],
+                                message.guild,
+                                self.servertree,
                                 payload)
         sys.stdout.flush()
         self.saveData()
@@ -182,7 +182,7 @@ class DiscordNomicBot():
         server = msg.guild
         await self.passToModule('on_reaction',
                                 server,
-                                self.servertree[server.id],
+                                self.servertree,
                                 react_payload)
 
         if str(payload.emoji) == str('🔄') and react_payload['name'] in Admins: await self.on_message(msg)
@@ -196,7 +196,7 @@ class DiscordNomicBot():
     async def on_member_join(self, member):
         guild = member.guild
         if guild.system_channel is not None:
-            await self.passToModule('on_member_join', guild, self.servertree[guild.id], None)
+            await self.passToModule('on_member_join', guild, self.servertree, None)
         self.saveData()
 
     """
@@ -237,11 +237,12 @@ class DiscordNomicBot():
               + "System Time: " + str(datetime.datetime.now()) + '\n' \
               + "Host: " + socket.gethostname() + '\n' \
               + "Local Bot Instances: " + str(botCount) + '\n' \
-              + "Local Handler Instances: " + str(handlerCount) 
+              + "Local Handler Instances: " + str(handlerCount)
         for server in self.client.guilds:
             msg += "\n\nServer: " + server.name + "\nModules Loaded:"
             for m in self.moduleNames: msg += '\n- ' + m + (' [disabled]' * (m in self.Data['DisabledModules'][server.id]))
         print(msg)
+        print('-'*24)
 
 
 bot = DiscordNomicBot()

@@ -15,11 +15,11 @@ async def on_message(Data, chan, server, payload):
 
     elif(splitPayload[0] == "!rule" and len(splitPayload) == 2):
         rulequery = int(splitPayload[1])
-        if(rulequery not in Data.keys()):
+        if(rulequery not in Data[server.id]['RuleList'].keys()):
             await channels[server.id][payload['Channel']].send("I couldn't find that rule.")
         else:
             print("Found Rule", rulequery)
-            answer = "Rule " + Data[rulequery]
+            answer = "Rule " + Data[server.id]['RuleList'][rulequery]
             response = ""
             for paragraph in answer.split("\n\n"):
                 paragraph = paragraph.replace('\\xe2\\x95\\x9e', ' ')
@@ -46,8 +46,8 @@ async def on_message(Data, chan, server, payload):
         if len(text) <= 3: await message.channel.send("Must Search Words Longer Then 3 Letters")
         else:
             found = False
-            for rule in Data.keys():
-                low = Data[rule].lower()
+            for rule in Data[server.id]['RuleList'].keys():
+                low = Data[server.id]['RuleList'][rule].lower()
                 if text in low:
                     isIn = 1
                     count = 2
@@ -68,9 +68,9 @@ async def on_message(Data, chan, server, payload):
                             if boundUpper >= len(low): boundUpper = len(low)-1
 
                             msg +=('\t...'\
-                                  +Data[rule][boundLower:index]\
-                                  +'**'+ Data[rule][index:index+len(text)]\
-                                  +'**'+ Data[rule][index+len(text):boundUpper]\
+                                  +Data[server.id]['RuleList'][rule][boundLower:index]\
+                                  +'**'+ Data[server.id]['RuleList'][rule][index:index+len(text)]\
+                                  +'**'+ Data[server.id]['RuleList'][rule][index+len(text):boundUpper]\
                                   +'...').replace('\n','  ')+'\n\n'
                         except ValueError:
                             isIn = 0
