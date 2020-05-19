@@ -6,7 +6,7 @@ Admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
 from threading import Thread
 discord = None
 import traceback
-savefile ='DiscordBot_Data.pickle'
+savefile = 'DiscordBot_Data.pickle'
 
 ''' 
 Implement Modules By Placing Module Python File In Same Directory
@@ -32,30 +32,27 @@ class DiscordNomicBot():
 
         self.moduleNames = []
         self.modules = []
+
+        self.servertree = {}
         self.Data = {}
         self.loadData()
 
         for mod in glob.glob("*.py"):
             mod = mod[:-3]
-            if mod in sys.argv[0] or 'Nomitron' == mod or 'run' == mod or mod[0]=='T':
-                continue
-            print ('Importing Module ',mod)
+            if not 'Rule' in mod: continue
+            print('Importing Module ',mod)
             self.modules.append(importlib.import_module(mod))
             self.moduleNames.append(mod)
 
         self.loop = asyncio.get_event_loop()
-        self.client = discord.Client(loop = self.loop,heartbeat_timeout=120)
+        self.client = discord.Client(loop = self.loop, heartbeat_timeout=120)
 
-        if self.Data.get('disabled') is None:
-            self.Data['disabled'] = {}
+        if self.Data.get('DisabledModules') is None:
+            self.Data['DisabledModules'] = {}
             self.saveData()
 
         self.token = open('/home/nomitron/secret.psk','r').read().strip()
-
-        # If Host Is Insperon Use Daniel's Bot Account
-        if socket.gethostname() == 'daniel-Inspiron-660s':
-            pass
-        print("Using Token: " + self.token)
+        print("Using Token: ..." + self.token[-6:])
 
         @self.client.event
         async def on_ready(): await self.on_ready()
@@ -70,13 +67,11 @@ class DiscordNomicBot():
         async def on_raw_reaction_remove(msg): await self.on_raw_reaction(msg, 'remove')
 
 
-        self.logChannel = "bot-lounge"
-
     def start(self):
         self.client.run(self.token, reconnect=True, )
 
     """
-    Process All Messages
+    Ruturn Channel Type
     """
     def getChannelType(self,obj):
         if type(obj) == discord.channel.DMChannel: return 'DM'
@@ -86,13 +81,13 @@ class DiscordNomicBot():
 
 
     """
-    Convert message data To Payload
+    Convert message data To Easier Message Payload
     """
     def convertToPayload(self, message):
         payload = {}
 
         if message == None:  return
-
+        payload['raw'] = message
         payload['Author'] = message.author.name + "#" + str(message.author.discriminator)
         payload['Nickname'] = message.author.name
         payload['Channel Type'] = self.getChannelType(message.channel)
@@ -112,28 +107,13 @@ class DiscordNomicBot():
         return payload
 
 
-    """
-    Handle Message Event
-    """
-    async def on_message(self, message):
-        payload = self.convertToPayload(message)
-        if message.author == self.client.user: return
-
-        await self.processCommands(payload,message)
+    async def passToModule(self, function, server, channels, payload):
         for mod, name in zip(self.modules, self.moduleNames):
-            if payload['Channel Type'] == 'DM': continue
-            if name in self.Data['disabled'][message.guild.id]: continue
-            if hasattr(mod, 'run'):
-                if 1: #try:
-                    tmp = await mod.run(self.Data, payload, message)
-                    if tmp is not None: self.Data = tmp
-                    else: print("None Returned OnMessage",name)
-                #except Exception as e:
-                #    print('Error:', e)
-
-        sys.stdout.flush()
-        self.saveData()
-
+            if name in self.Data['DisabledModules']: continue
+            if hasattr(mod, function):
+                tmp = await getattr(mod, function)(self.Data, channels, server, payload)
+                if tmp is not None:  self.Data = tmp
+                #else:  print("None Returned OnMessage", name)
 
     """
     Display All Server ,Detailssocket.gethostname()
@@ -144,71 +124,42 @@ class DiscordNomicBot():
         print('Bot Started!')
         print('-'*20)
         for server in self.client.guilds:
-            channels = {}
-            if self.Data['disabled'].get(server.id) is None:
-                self.Data['disabled'][server.id] = []
+            self.servertree[server.id] = {}
+            if self.Data['DisabledModules'].get(server.id) is None:
+                self.Data['DisabledModules'][server.id] = []
                 self.saveData()
             for channel in server.text_channels:
-                channels[channel.name] = channel
-            botCount = 0
-            handlerCount = 0
-            proc  = os.popen("""pgrep "python" | xargs -r --no-run-if-empty ps fp | awk '{print $6}';""").read().split('\n')
+                self.servertree[server.id][channel.name] = channel
 
-            for p in proc:
-                print (p.split('/')[-1])
-                if 'DiscordBot.py' in p: botCount +=1
-                if 'Nomitron.py' in p: handlerCount +=1
-            msg = "**__"+" "*450 + "__\n" \
-                + "Nomitron Bot Booting Up.\n" \
-                + "System Time: "+str(datetime.datetime.now())+'\n' \
-                + "Host: "+socket.gethostname() +'\n' \
-                + "Local Bot Instances: "+str(botCount) +'\n' \
-                + "Local Handler Instances: "+str(handlerCount) +'**\n'
+            if not server.id in self.Data: self.Data[server.id] = {}
 
-            await channels[self.logChannel].send(msg)
+        self.printInfo()
 
-            tasks = []
-            for mod, name in zip(self.modules, self.moduleNames):
-                if name in self.Data['disabled']: continue
-                if hasattr(mod, 'setup'):
-                    try:
-                        tmp = await mod.setup(self.Data, channels,self.logChannel,server)
-                        if tmp is not None: self.Data = tmp
-                        else: print("None Returned OnMessage", name)
-                    except Exception as e:
-                        print ("Exception On Startup")
-                        try:
-                            self.Data['disabled'][server.id].append(name)
-                            await channels[self.logChannel].send("Disabling "+name+" due to Error:"+str(e))
-                            self.saveData()
-                        except Exception as e2:
-                            print('Error Disabling After Error', str(e2))
-                        raise e
-
-            msg =  "```diff\nModules Loaded:"
-            for m in self.moduleNames:
-                if m in self.Data['disabled'][server.id]:        msg += '\n- ' + m + ' [disabled]'
-                else:                                            msg += '\n+ ' + m
-            msg += "```"
-            await channels[self.logChannel].send(msg)
+        for server in self.client.guilds:
+            await self.passToModule('setup', server, self.servertree[server.id], None)
+        self.saveData()
 
         while 1:
             sys.stdout.flush()
             await asyncio.sleep(30)
-
-            tasks = []
-
-            for mod, name in zip(self.modules, self.moduleNames):
-                for server in self.client.guilds:
-                    if name in self.Data['disabled'][server.id]: continue
-                    if hasattr(mod, 'update'):
-                        tmp = await mod.update(self.Data, server)
-                        if tmp is not None: self.Data = tmp
-                        else: print("None Returned OnMessage", name)
-                        #except Exception as e:
-                        #    print('Error:',mod,e)
+            for server in self.client.guilds:
+                await self.passToModule('update', server, self.servertree[server.id], None)
             self.saveData()
 
+    """
+    Handle Message Event
+    """
+
+    async def on_message(self, message):
+        payload = self.convertToPayload(message)
+        if message.author == self.client.user: return
+
+        await self.passToModule('on_message',
+                                message.server,
+                                self.servertree[message.server.id],
+                                payload)
+        sys.stdout.flush()
+        self.saveData()
 
     """
     Handle Reactions
@@ -220,18 +171,21 @@ class DiscordNomicBot():
         channel = self.client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
 
-        reactorName = user.name + '#' + user.discriminator
-        if str(payload.emoji) == str('🔄') and reactorName in Admins:
-            await self.on_message(msg)
+        react_payload = dict(payload)
+        react_payload['mode']    = mode
+        react_payload['message'] = msg
+        react_payload['user']    = user
+        react_payload['channel'] = channel
+        react_payload['name']    = user.name + '#' + user.discriminator
 
-        tasks = []
-        for mod, name in zip(self.modules, self.moduleNames):
-            if name in self.Data['disabled'][msg.guild.id]: continue
-            if hasattr(mod, 'reaction'):
-                tmp = await mod.reaction(self.Data, mode, user, msg, payload.emoji)
-                if tmp is not None: self.Data = tmp
-                else: print("None Returned OnMessage", name)
 
+        server = msg.guild
+        await self.passToModule('on_reaction',
+                                server,
+                                self.servertree[server.id],
+                                react_payload)
+
+        if str(payload.emoji) == str('🔄') and react_payload['name'] in Admins: await self.on_message(msg)
         sys.stdout.flush()
         self.saveData()
 
@@ -242,15 +196,13 @@ class DiscordNomicBot():
     async def on_member_join(self, member):
         guild = member.guild
         if guild.system_channel is not None:
-            tasks = []
-            for mod, name in zip(self.modules, self.moduleNames):
-                if name in self.Data['disabled'][guild.id]: continue
-                if hasattr(mod, 'addMember'):
-                    tmp = await mod.addMember(self.Data, member)
-                    if tmp is not None: self.Data = tmp
-                    else: print("None Returned OnMessage", name)
+            await self.passToModule('on_member_join', guild, self.servertree[guild.id], None)
         self.saveData()
 
+    """
+    Save Memory Data From File
+    Dont Modify Unless You Really Want To I Guess...
+    """
     def saveData(self):
         with open(savefile, 'wb') as handle:
             pickle.dump(self.Data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -259,7 +211,6 @@ class DiscordNomicBot():
     Load Memory Data From File
     Dont Modify Unless You Really Want To I Guess...
     """
-
     def loadData(self):
         try:
             with open(savefile, 'rb') as handle:
@@ -269,58 +220,29 @@ class DiscordNomicBot():
             with open(savefile, 'wb') as handle:
                 pickle.dump(self.Data, handle)
 
+    """
+    Diplay Server Info to Terminal
+    """
+    def printInfo(self):
+        botCount = 0
+        handlerCount = 0
+        proc = os.popen("""pgrep "python" | xargs -r --no-run-if-empty ps fp | awk '{print $6}';""").read().split('\n')
 
-    async def processCommands(self, payload, message):
-        admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
-        botCharacter = '>>'
+        for p in proc:
+            print(p.split('/')[-1])
+            if 'DiscordBot.py' in p: botCount += 1
+            if 'Nomitron.py' in p: handlerCount += 1
+        msg = "-" * 24 + "\n" \
+              + "Nomitron Bot Booting Up.\n" \
+              + "System Time: " + str(datetime.datetime.now()) + '\n' \
+              + "Host: " + socket.gethostname() + '\n' \
+              + "Local Bot Instances: " + str(botCount) + '\n' \
+              + "Local Handler Instances: " + str(handlerCount) 
+        for server in self.client.guilds:
+            msg += "\n\nServer: " + server.name + "\nModules Loaded:"
+            for m in self.moduleNames: msg += '\n- ' + m + (' [disabled]' * (m in self.Data['DisabledModules'][server.id]))
+        print(msg)
 
-        if payload['Content'][:len(botCharacter)] == botCharacter and  payload['Content'][len(botCharacter)] != ' ':
-            payload['Content'] = payload['Content'][:2] + ' ' + payload['Content'][2:]
-        splitPayload = payload['Content'].split(' ')
-
-        if len(splitPayload) == 3 and payload['Channel Type'] == 'Text' \
-                and splitPayload[1].lower() == "disable" and splitPayload[0] == botCharacter:
-            if splitPayload[2] in self.moduleNames:
-                self.Data['disabled'][message.guild.id].append( splitPayload[2] )
-                msg = "```diff\nModules Loaded:"
-                for mod, name in zip(self.modules, self.moduleNames):
-                    if name in self.Data['disabled'][message.guild.id]:
-                        msg += '\n- ' + name + ' [disabled]'
-                    else:
-                        msg += '\n+ ' + name
-                msg += "```"
-                await message.channel.send(msg)
-            else:
-                await message.channel.send("Module {0} cannot be found".format(splitPayload[2]))
-
-        if len(splitPayload) == 3 and payload['Channel Type'] == 'Text' \
-                and splitPayload[1].lower() == "enable" and splitPayload[0] == botCharacter:
-            if splitPayload[2] in self.moduleNames:
-                mod = self.modules[self.moduleNames.index(splitPayload[2])]
-                reloaded = True
-                channels = {}
-                for channel in message.guild.text_channels:
-                    channels[channel.name] = channel
-                if hasattr(mod, 'setup'):
-                    try:
-                        await mod.setup(self.Data, channels, self.logChannel, message.guild)
-                        #print('Enabling',self.Data)
-                        self.Data['disabled'][message.guild.id] = [x for x in self.Data['disabled'][message.guild.id] if x != splitPayload[2]]
-                    except Exception as e:
-                        print('Disabling')
-                        await message.channel.send("Disabling " + splitPayload[2] + " due to Error:" + str(e))
-
-                    msg = "```diff\nModules Loaded:"
-                    for mod, name in zip(self.modules, self.moduleNames):
-                        if name in self.Data['disabled'][message.guild.id]:
-                            msg += '\n- ' + name + ' [disabled]'
-                        else:
-                            msg += '\n+ ' + name
-                    msg += "```"
-                    await message.channel.send(msg)
-            else:
-                await message.channel.send("Module {0} cannot be found".format(splitPayload[2]))
-        self.saveData()
 
 bot = DiscordNomicBot()
 bot.start()
