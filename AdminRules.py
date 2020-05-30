@@ -41,7 +41,7 @@ async def on_message(Data, channels, server, payload):
             if msg != "":
                 await message.channel.send('```diff\n'+msg+'```')
 
-    if payload['Author'] in admins and payload['Channel'].lower() in ['actions','action', 'mod-lounge', 'bot-lounge']:
+    if payload['Author'] in admins: # and payload['Channel'].lower() in ['actions','action', 'mod-lounge', 'bot-lounge']:
         if payload['Content'][:len(botCharacter)] == botCharacter and  payload['Content'][len(botCharacter)] != ' ':
             payload['Content'] = payload['Content'][:2] + ' ' + payload['Content'][2:]
         splitPayload = payload['Content'].split(' ')
