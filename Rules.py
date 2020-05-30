@@ -88,7 +88,7 @@ Handles Change In Server Structure and the like. Probably Can Leave Alone.
 async def setup(Data, channels, server, payload):
     # Do Stuff Here
     Data[server.id]['RuleList'] = {}
-    with urllib.request.urlopen('https://github.com/dmouscher/nomic/blob/master/Game_4/rules-s.md') as response:
+    with urllib.request.urlopen('https://raw.githubusercontent.com/dmouscher/nomic/master/Game_4/rules-s.md') as response:
         rules = response.read().decode("utf-8")
         ruletxt = rules.split("\n## ")[1:]
         for rule in ruletxt:
