@@ -171,10 +171,9 @@ class DiscordNomicBot():
                     if found: print('Duplicat Function of Name '+functionName+' in '+self.moduleNames[i])
 
                     found = True
-                    if 1:
+                    try:
                         tmp = await getattr(mod, functionName)(self.Data, self.servertree, message.guild, payload, payload['Content'][1:].split(' ') )
                         if tmp is not None:  self.Data = tmp
-                    try: pass
                     except TypeError:
                         print('Incorrectly Formatted Funtion for '+functionName+' in '+self.moduleNames[i])
 
