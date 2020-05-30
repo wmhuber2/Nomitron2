@@ -6,7 +6,7 @@ import pickle, sys, numpy
 Main Run Function On Messages
 """
 async def on_message(Data, channels, server, payload):
-    message = payload['raw']
+
     if payload['Content'][0] != '!': return
     diceInfo = payload['Content'][1:].split('d')
     if len(diceInfo) == 2:
