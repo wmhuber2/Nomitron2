@@ -46,9 +46,15 @@ async def on_message(Data, channels, server, payload):
         if len(text) <= 3: await message.channel.send("Must Search Words Longer Then 3 Letters")
         else:
             found = False
+            rulecount = 5
             for rule in Data[server.id]['RuleList'].keys():
                 low = Data[server.id]['RuleList'][rule].lower()
-                if text in low:
+
+                if text in low and rulecount <= 0:
+
+                    await message.channel.send("and in rule "+str(rule))
+                if text in low and rulecount >= 0:
+                    rulecount-=1
                     isIn = 1
                     count = 2
                     initIndex = 0
