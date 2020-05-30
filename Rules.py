@@ -99,9 +99,9 @@ async def setup(Data, channels, server, payload):
         ruletxt = rules.split("\n## ")[1:]
         for rule in ruletxt:
             try:
-                rule = rule.strip()
-                rulenum = int(rule[:3])
-                Data[server.id]['RuleList'][rulenum] = rule.replace('&nbsp;', ' ').replace('\\n', '\n')
+                rule = rule.strip().split('\n\n',1)
+                rulenum = int(rule[0][0:3])
+                Data[server.id]['RuleList'][rulenum] = rule[1].replace('&nbsp;', ' ').replace('\\n', '\n')
             except:
                 print('ERROR')
                 print(rule)
