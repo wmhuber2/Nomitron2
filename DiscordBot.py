@@ -1,5 +1,6 @@
 #! Python3
 import sys, asyncio, os, importlib, glob, datetime, random,socket, multiprocessing, pickle
+from shutil import copyfile
 
 
 Admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
@@ -123,6 +124,12 @@ class DiscordNomicBot():
         print('Logged in as ' + self.client.user.name)
         print('Bot Started!')
         print('-'*20)
+
+        try: os.mkdir('BackupDataFiles/')
+        except: pass
+        copyfile('DiscordBot_Data.pickle',
+                 'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
+
         for server in self.client.guilds:
             self.servertree[server.id] = {}
             if self.Data['DisabledModules'].get(server.id) is None:
