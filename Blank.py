@@ -2,6 +2,15 @@
 # Blank Module For Discord Bot
 ################################
 import pickle, sys
+
+"""
+For a Custom Command !commandMe
+"""
+
+async def commandMe(Data, channels, server, payload, *text):
+    pass
+
+
 """
 Initiate New Player
 """

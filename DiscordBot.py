@@ -161,10 +161,29 @@ class DiscordNomicBot():
         payload = self.convertToPayload(message)
         if message.author == self.client.user: return
 
-        await self.passToModule('on_message',
-                                message.guild,
-                                self.servertree,
-                                payload)
+
+        found = False
+        if payload['Content'].split(' ')[0][0] == '!':
+            functionName = payload['Content'][1:].split(' ')[0]
+            for i in range(len(self.moduleNames)):
+                mod = self.modules[i]
+                if hasattr(mod, functionName):
+                    if found: print('Duplicat Function of Name '+functionName+' in '+self.moduleNames[i])
+
+                    found = True
+                    if 1:
+                        tmp = await getattr(mod, functionName)(self.Data, self.servertree, message.guild, payload, payload['Content'][1:].split(' ') )
+                        if tmp is not None:  self.Data = tmp
+                    try: pass
+                    except TypeError:
+                        print('Incorrectly Formatted Funtion for '+functionName+' in '+self.moduleNames[i])
+
+
+        if not found:
+            await self.passToModule('on_message',
+                                    message.guild,
+                                    self.servertree,
+                                    payload)
         sys.stdout.flush()
         self.saveData()
 
