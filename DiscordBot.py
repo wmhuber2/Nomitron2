@@ -168,7 +168,7 @@ class DiscordNomicBot():
             for i in range(len(self.moduleNames)):
                 mod = self.modules[i]
                 if hasattr(mod, functionName):
-                    if found: print('Duplicat Function of Name '+functionName+' in '+self.moduleNames[i])
+                    if found: print('Duplicate Function of Name '+functionName+' in '+self.moduleNames[i])
 
                     found = True
                     try:
