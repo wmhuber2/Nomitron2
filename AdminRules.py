@@ -9,7 +9,6 @@ from shutil import copyfile
 Main Run Function
 """
 async def on_message(Data, channels, server, payload):
-
     guild = server.id
     message = payload['raw']
     admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']

@@ -9,10 +9,10 @@ Main Run Function On Messages
 
 async def rule(Data, channels, server, payload, *text):
     argv = text[0]
-
+    message = payload['raw']
     rulequery = int(argv[1])
     if(rulequery not in Data[server.id]['RuleList'].keys()):
-        await channels[server.id][payload['Channel']].send("I couldn't find that rule.")
+        await message.channel.send("I couldn't find that rule.")
     else:
         print("Found Rule", rulequery)
         answer = Data[server.id]['RuleList'][rulequery]
@@ -24,7 +24,7 @@ async def rule(Data, channels, server, payload, *text):
             paragraph = paragraph.replace('\\xe2\\x94\\x80', ' ')
             if(len(response) + len(paragraph) + 6 > 1850):
                 #print(response)
-                await channels[server.id][payload['Channel']].send(response)
+                await message.channel.send(response)
                 response = ""
             if len(paragraph) >1900:
                 print('Error: Paragraph too long!!! Length: ', len(paragraph))
@@ -32,7 +32,7 @@ async def rule(Data, channels, server, payload, *text):
             else:
                 response = response + "\n\n" + paragraph
         #print(response)
-        await channels[server.id][payload['Channel']].send(response)
+        await message.channel.send(response)
 
 async def find(Data, channels, server, payload, *text):
     argv = text[0]

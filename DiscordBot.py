@@ -102,6 +102,8 @@ class DiscordNomicBot():
         payload['Content'] = message.system_content.strip()
         payload['Attachments'] = {}
 
+        payload['Server'] = message.guild
+        print(payload['Server'])
         for file in message.attachments:
             payload['Attachments'][file.filename] = file.url
         #print(payload)
