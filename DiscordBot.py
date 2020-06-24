@@ -52,7 +52,7 @@ class DiscordNomicBot():
             self.Data['DisabledModules'] = {}
             self.saveData()
 
-        self.token = open('/home/nomitron/secret.psk','r').readlines()[1].strip()
+        self.token = open('/home/nomitron/secret.psk','r').readlines()[0].strip()
         print("Using Token: ..." + self.token[-6:])
 
         @self.client.event
