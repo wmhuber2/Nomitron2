@@ -8,7 +8,7 @@ from threading import Thread
 discord = None
 import traceback
 savefile = 'DiscordBot_Data.pickle'
-
+default_server_id = 707705708346343434
 ''' 
 Implement Modules By Placing Module Python File In Same Directory
 Modules Must Have Different Names And Be Written With Python 3 Compatibility.
@@ -111,6 +111,8 @@ class DiscordNomicBot():
 
 
     async def passToModule(self, function, server, channels, payload):
+        if server.id not in channels.keys():
+            server = self.servertree[default_server_id]['Server']
         for mod, name in zip(self.modules, self.moduleNames):
             if name in self.Data['DisabledModules']: continue
             if hasattr(mod, function):
@@ -133,7 +135,7 @@ class DiscordNomicBot():
                  'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
 
         for server in self.client.guilds:
-            self.servertree[server.id] = {}
+            self.servertree[server.id] = {'Server':server}
             if self.Data['DisabledModules'].get(server.id) is None:
                 self.Data['DisabledModules'][server.id] = []
                 self.saveData()
@@ -173,9 +175,10 @@ class DiscordNomicBot():
                     if found: print('Duplicate Function of Name '+functionName+' in '+self.moduleNames[i])
 
                     found = True
-                    try:
+                    if 1:#try:
                         tmp = await getattr(mod, functionName)(self.Data, self.servertree, message.guild, payload, payload['Content'][1:].split(' ') )
                         if tmp is not None:  self.Data = tmp
+                    try: pass
                     except TypeError:
                         print('Incorrectly Formatted Funtion for '+functionName+' in '+self.moduleNames[i])
 
