@@ -52,7 +52,7 @@ class DiscordNomicBot():
             self.Data['DisabledModules'] = {}
             self.saveData()
 
-        self.token = open('/home/nomitron/secret.psk','r').readlines()[0].strip()
+        self.token = open('/home/nomitron/secret.psk','r').readlines()[1].strip()
         print("Using Token: ..." + self.token[-6:])
 
         @self.client.event
@@ -110,13 +110,16 @@ class DiscordNomicBot():
         return payload
 
 
-    async def passToModule(self, function, server, channels, payload):
-        if server.id not in channels.keys():
+    async def passToModule(self, function, server, channels, payload, *args):
+        if server is None or server.id not in channels.keys():
+            print('Server Not Found, Using Default')
             server = self.servertree[default_server_id]['Server']
         for mod, name in zip(self.modules, self.moduleNames):
             if name in self.Data['DisabledModules']: continue
             if hasattr(mod, function):
-                tmp = await getattr(mod, function)(self.Data, channels, server, payload)
+                if args is None: tmp = await getattr(mod, function)(self.Data, channels, server, payload)
+                else: tmp = await getattr(mod, function)(self.Data, channels, server, payload, *args)
+
                 if tmp is not None:  self.Data = tmp
                 #else:  print("None Returned OnMessage", name)
 
@@ -176,7 +179,7 @@ class DiscordNomicBot():
 
                     found = True
                     if 1:#try:
-                        tmp = await getattr(mod, functionName)(self.Data, self.servertree, message.guild, payload, payload['Content'][1:].split(' ') )
+                        tmp = await self.passToModule(functionName, message.guild, self.servertree, payload, payload['Content'][1:].split(' ') )
                         if tmp is not None:  self.Data = tmp
                     try: pass
                     except TypeError:
