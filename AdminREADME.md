@@ -1,8 +1,8 @@
 Hi. It looks like you need some help. Some commands are listed below.
 
 Admin: Allowed Channels: All
--  >>die        Kills Nomitron
--  >>restart    Restarts Nomitron Instance
+-  !die        Kills Nomitron
+-  !restart    Restarts Nomitron Instance
 
 - !clear battleship     Resets all Battleship Boards
 - !show battleship      Show all Ship Positions
