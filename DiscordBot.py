@@ -121,13 +121,16 @@ class DiscordNomicBot():
                 print( mod, 'is disabled, Not setting up' )
                 continue
             if hasattr(mod, function):
-                payload_tmp = None
-                if payload is not None: payload_tmp = dict(payload)
-                if args is None:  tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp)
-                else:             tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp, *args)
+                try:
+                    payload_tmp = None
+                    if payload is not None: payload_tmp = dict(payload)
+                    if args is None:  tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp)
+                    else:             tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp, *args)
 
-                #print('Command Ret:', tmp)
-                if type(tmp) is dict:  self.Data = tmp
+                    #print('Command Ret:', tmp)
+                    if type(tmp) is dict:  self.Data = tmp
+                except Exception as e:
+                    print (e, e.__cause__, e.with_traceback())
                 #else:  print("None Returned OnMessage", name)
 
     """
@@ -155,17 +158,17 @@ class DiscordNomicBot():
             if not server.id in self.Data: self.Data[server.id] = {}
 
         self.printInfo()
-
+        payload = {'ctx': self.client}
         for server in self.client.guilds:
-            await self.passToModule('setup', server, self.servertree, {'ctx': self.client})
+            await self.passToModule('setup', server, self.servertree, dict(payload))
         self.saveData()
         print('Setup Finished!')
 
         while 1:
             sys.stdout.flush()
-            await asyncio.sleep(30)
+            await asyncio.sleep(5)
             for server in self.client.guilds:
-                await self.passToModule('update', server, self.servertree, None)
+                await self.passToModule('update', server, self.servertree, dict(payload))
             self.saveData()
 
     """

@@ -95,8 +95,7 @@ async def next(Data, channels, server, payload, *text):
         index = 0
     Data[server.id]['Music'][voice_channel.id]['index'] = index
     vc.stop()
-    vc.play(discord.FFmpegPCMAudio(Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['path']),
-            after= lambda: next(Data, channels, server, payload))
+    vc.play(discord.FFmpegPCMAudio(Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['path']),)
 
 async def play(Data, channels, server, payload, *text):
     message = payload['raw']
@@ -129,6 +128,8 @@ async def play(Data, channels, server, payload, *text):
 
     # play NUM
     if len(text) == 1 and text[0].isdigit():
+
+
         index = int(text[0])
         if index >= len(Data[server.id]['Music'][voice_channel.id]['Music Queue']):
             await message.channel.send("That is not a valid Index")
@@ -138,9 +139,10 @@ async def play(Data, channels, server, payload, *text):
             "Now Playing: \"" + Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['title'] + "\""
         )
         vc.stop()
-        vc.play(discord.FFmpegPCMAudio(Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['path']),
-                after= lambda: next(Data, channels, server, payload))
+
+        vc.play(discord.FFmpegPCMAudio(Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['path']))
         return
+
 
 async def queue(Data, channels, server, payload, *text):
     message = payload['raw']
@@ -206,6 +208,20 @@ async def stop(Data, channels, server, payload, *text):
     del Data[server.id]['Music'][voice_channel.id]
     await vc.disconnect()
     return Data
+
+async def update(Data, channels, server, payload):
+    ctx = payload['ctx']
+    for vc in ctx.voice_clients:
+        if not (vc.is_playing() and not vc.is_paused()):
+            voice_channel = vc.channel
+            index = Data[server.id]['Music'][voice_channel.id]['index']
+            index = index + 1
+            if index >= len(Data[server.id]['Music'][voice_channel.id]['Music Queue']):
+                index = 0
+            Data[server.id]['Music'][voice_channel.id]['index'] = index
+            vc.stop()
+            vc.play(discord.FFmpegPCMAudio(Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['path']), )
+
 
 async def setup(Data, channels, server, payload):
     Data[server.id]['Music'] = {}
