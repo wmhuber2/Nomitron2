@@ -15,7 +15,6 @@ async def battleship(Data, channels, server, payload, *text):
 
     coords = payload['Content'][len('!battleship'):].upper().replace('\n','').replace(' ','')
     coords = coords.split(',')
-    print(coords)
     if len(coords) != 5:
         await message.channel.send("Please make sure you have 5 comma seperated ships")
         return
@@ -34,7 +33,6 @@ async def battleship(Data, channels, server, payload, *text):
             return
         if s[0] == e[0]:
             d = abs(int(s[1:])- int(e[1:]))+1
-            print(d)
             if d in boats:   boats.remove(d)
             else:
                 await message.channel.send("Please Make Sure You Have Boats of Size 5,4,3,3,2")
@@ -46,7 +44,6 @@ async def battleship(Data, channels, server, payload, *text):
                 boat_coords.append(s[0]+str(i))
         elif s[1:] == e[1:]:
             d = abs(ord(s[0]) - ord(e[0]))+1
-            print(d)
             if d in boats:   boats.remove(d)
             else:
                 await message.channel.send("PLease Make Sure You Have Boats of Size 5,4,3,3,2")
@@ -83,7 +80,6 @@ async def fire(Data, channels, server, payload, *text):
         return
 
     # Test For Formatting
-    print (text)
     if len(text) != 2:
         await message.channel.send("Use command like !fire @player B10")
         return
