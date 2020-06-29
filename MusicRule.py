@@ -214,6 +214,8 @@ async def update(Data, channels, server, payload):
     for vc in ctx.voice_clients:
         if not (vc.is_playing() and not vc.is_paused()):
             voice_channel = vc.channel
+            if len(Data[server.id]['Music'][voice_channel.id]['Music Queue']) == 0: continue
+
             index = Data[server.id]['Music'][voice_channel.id]['index']
             index = index + 1
             if index >= len(Data[server.id]['Music'][voice_channel.id]['Music Queue']):
