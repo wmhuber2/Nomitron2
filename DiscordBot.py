@@ -8,7 +8,7 @@ from threading import Thread
 discord = None
 import traceback
 savefile = 'DiscordBot_Data.pickle'
-default_server_id = 471534061840629761 #707705708346343434
+default_server_id = 707705708346343434
 
 
 
