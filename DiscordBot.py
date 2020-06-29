@@ -126,7 +126,7 @@ class DiscordNomicBot():
                 if args is None:  tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp)
                 else:             tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp, *args)
 
-                print('Command Ret:', tmp)
+                #print('Command Ret:', tmp)
                 if type(tmp) is dict:  self.Data = tmp
                 #else:  print("None Returned OnMessage", name)
 
