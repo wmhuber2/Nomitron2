@@ -5,6 +5,21 @@ import sys, os,datetime
 from shutil import copyfile
 
 
+async def restart(Data, channels, server, payload, *text):
+    guild = server.id
+    message = payload['raw']
+    admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
+    if payload['Author'] in admins:
+        copyfile('DiscordBot_Data.pickle',
+                 'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
+        await message.channel.send('Going for Restart')
+        print("Going For Restart...")
+        sys.exit(0)
+
+async def ping(Data, channels, server, payload, *text):
+
+    message = payload['raw']
+    await message.channel.send('!pong')
 """
 Main Run Function
 """
@@ -46,21 +61,9 @@ async def on_message(Data, channels, server, payload):
         splitPayload = payload['Content'].split(' ')
 
         if len(splitPayload) == 2 and payload['Channel Type'] == 'Text' \
-                and splitPayload[1].lower() == "restart" and splitPayload[0] == botCharacter:
-            copyfile('DiscordBot_Data.pickle',
-                     'BackupDataFiles/DiscordBot_Data-'+str(datetime.datetime.now())+'.pickle')
-            await message.channel.send('Going for Restart')
-            print("Going For Restart...")
-            sys.exit(0)
-
-        if len(splitPayload) == 2 and payload['Channel Type'] == 'Text' \
                 and splitPayload[1].lower() == "die" and splitPayload[0] == botCharacter:
             copyfile('DiscordBot_Data.pickle',
                      'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
             print("Going For Death...", guild)
             await message.channel.send('Going to Die alone...')
             os.system("pkill python")
-
-        if len(splitPayload) == 2 and payload['Channel Type'] == 'Text' \
-                and splitPayload[1].lower() == "ping" and splitPayload[0] == botCharacter:
-            await message.channel.send('!pong')
