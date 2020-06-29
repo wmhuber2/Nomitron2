@@ -4,7 +4,7 @@ import shutil, os, sys
 if __name__ == "__main__":
     rw_dir = 'https://github.com/wmhuber2/Nomitron2'
     dir = os.getcwd()
-
+    print('Current Working Dir: ', dir)
     while 1:
         tmpdir = os.path.join(dir,'tmp')
         try:
