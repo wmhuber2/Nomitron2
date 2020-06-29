@@ -54,7 +54,10 @@ async def playlist(Data, channels, server, payload, *text):
 
     i = 0
     for song in Data[server.id]['Music'][voice_channel.id]['Music Queue']:
-        playlist += "\n"+str(i)+") \t "+song['title']
+        if i == Data[server.id]['Music'][voice_channel.id]['index']:
+            playlist += "\n**" + str(i) + ") \t " + song['title']+"**"
+        else:
+            playlist += "\n"+str(i)+") \t "+song['title']
         i += 1
     await message.channel.send(playlist)
 

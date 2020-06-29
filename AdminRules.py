@@ -16,8 +16,18 @@ async def restart(Data, channels, server, payload, *text):
         print("Going For Restart...")
         sys.exit(0)
 
-async def ping(Data, channels, server, payload, *text):
+async def die(Data, channels, server, payload, *text):
+    guild = server.id
+    message = payload['raw']
+    admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
+    if payload['Author'] in admins:
+        copyfile('DiscordBot_Data.pickle',
+                 'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
+        await message.channel.send('Going for Death')
+        print("Going For Death...")
+        os.system("pkill python")
 
+async def ping(Data, channels, server, payload, *text):
     message = payload['raw']
     await message.channel.send('!pong')
 """
@@ -43,6 +53,7 @@ async def on_message(Data, channels, server, payload):
                 msg = msg + line
             if msg != "":
                 await message.channel.send('```diff\n'+msg+'```')
+
     if payload['Content'] in ['!admin', '! admin']:
         with open('AdminREADME.md', 'r') as helpFile:
             help = helpFile.readlines()
@@ -54,16 +65,3 @@ async def on_message(Data, channels, server, payload):
                 msg = msg + line
             if msg != "":
                 await message.channel.send('```diff\n'+msg+'```')
-
-    if payload['Author'] in admins: # and payload['Channel'].lower() in ['actions','action', 'mod-lounge', 'bot-lounge']:
-        if payload['Content'][:len(botCharacter)] == botCharacter and  payload['Content'][len(botCharacter)] != ' ':
-            payload['Content'] = payload['Content'][:2] + ' ' + payload['Content'][2:]
-        splitPayload = payload['Content'].split(' ')
-
-        if len(splitPayload) == 2 and payload['Channel Type'] == 'Text' \
-                and splitPayload[1].lower() == "die" and splitPayload[0] == botCharacter:
-            copyfile('DiscordBot_Data.pickle',
-                     'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
-            print("Going For Death...", guild)
-            await message.channel.send('Going to Die alone...')
-            os.system("pkill python")
