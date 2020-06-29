@@ -117,7 +117,9 @@ class DiscordNomicBot():
             print('Server Not Found, Using Default')
             server = self.servertree[default_server_id]['Server']
         for mod, name in zip(self.modules, self.moduleNames):
-            if name in self.Data['DisabledModules']: continue
+            if name in self.Data['DisabledModules']:
+                print( mod, 'is disabled, Not setting up' )
+                continue
             if hasattr(mod, function):
                 payload_tmp = None
                 if payload is not None: payload_tmp = dict(payload)
