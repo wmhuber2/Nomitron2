@@ -6,7 +6,9 @@ Global Commands: Allowed Channels: ALL
 -   !f "text"   Display rules that contain text.
 -   !#d#        Roll dice 
 
-ActionCommands:        Allowed Channels: actions
+Battleship Commands (DM Nomitron):
+-   !battleship A1-A5, ... J9-J10      Create A Battleship Board With Given Ship Coords
+-   !fire @player A7                   Fire at a PLayer's Board
 
 Music Bot Commands:
 -   !play URL_LIST      adds song to playlist and plays song

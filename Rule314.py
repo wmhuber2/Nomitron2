@@ -11,9 +11,53 @@ Admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
 
 async def battleship(Data, channels, server, payload, *text):
     playerName = payload['Author']
+    message = payload['raw']
+
+    coords = payload['Content'][len('!battleship'):].upper().replace('\n','').replace(' ','')
+    coords = coords.split(',')
+    print(coords)
+    if len(coords) != 5:
+        await message.channel.send("Please make sure you have 5 comma seperated ships")
+        return
+
+    boats = [5,4,3,3,2]
+    boat_coords = []
+    for c in coords:
+        if '-' not in c:
+            await message.channel.send("Please Use a - between start and end coords for a ship")
+            return
+
+        s,e = c.split('-')
+        if not (s[0] in 'ABCDEFGHIJ' and s[1:].isdigit() and int(s[1:]) in range(1, 11)) \
+                or not (e[0] in 'ABCDEFGHIJ' and e[1:].isdigit() and int(e[1:]) in range(1, 11)):
+            await message.channel.send("Use coordinates formatted like B10, F2")
+            return
+        if s[0] == e[0]:
+            d = abs(int(s[1:])- int(e[1:]))+1
+            print(d)
+            if d in boats:   boats.remove(d)
+            else:
+                await message.channel.send("PLease Make Sure You Have Boats of Size 5,4,3,3,2")
+                return
+            for i in range(int(s[1:]), int(e[1:])+1):
+                boat_coords.append(s[0]+str(i))
+        elif s[1:] == e[1:]:
+            d = abs(ord(s[0]) - ord(e[0]))+1
+            print(d)
+            if d in boats:   boats.remove(d)
+            else:
+                await message.channel.send("PLease Make Sure You Have Boats of Size 5,4,3,3,2")
+                return
+            for i in range(ord(s[0]), ord(e[0])+1):
+                boat_coords.append(chr(i)+s[1:])
+        else:
+            await message.channel.send("Boats Must be vertical or horizontal")
+            return
+
+
     Data[server.id]['Battleship']['Players'][playerName] = {
-        'Ships':['A2','A3','A3','A5','J10','J9'],
-        'Shots':[],
+        'Ships': list(boat_coords),
+        'Shots': [],
         'Undamaged': 17,
         'msg_board_id': None
     }
@@ -28,7 +72,7 @@ async def fire(Data, channels, server, payload, *text):
 
     # Test if player is playing or can play
     if Data[server.id]['Battleship']['Players'].get(author) is None\
-            or Data[server.id]['Battleship']['Players'][author]['Undamaged'] < 1:
+            or set(Data[server.id]['Battleship']['Players'][author]['Ships']).issubset(set(Data[server.id]['Battleship']['Players'][author]['Shots'])):
         await message.channel.send("You cannot fire beacsue all your ships are sunk, or you are not playing battleship.")
         return
 
@@ -40,7 +84,7 @@ async def fire(Data, channels, server, payload, *text):
     else:
         coord = text[1].upper()
         if not (coord[0] in 'ABCDEFGHIJ' and coord[1:].isdigit() and int(coord[1:]) in range(1,11)):
-            await message.channel.send("Use coordinates like B10, F2")
+            await message.channel.send("Use coordinates like B10, F2 within the Board")
             return
         # Test For Valid Target
         playerName = await getPlayer(server, text[0], channel = message.channel)
@@ -79,7 +123,10 @@ async def on_message(Data, channels, server, payload):
             print('Deleting', player)
         Data[server.id]['Battleship']['Players'] = {}
 
-
+    if payload['Content'] == '!show battleship' and payload['Author'] in Admins:
+        for player in Data[server.id]['Battleship']['Players'].keys():
+            Data[server.id]['Battleship']['Players'][player]['Shots'] = Data[server.id]['Battleship']['Players'][player]['Ships']
+            await generate_display(Data, channels, server, player)
 
 
 """
@@ -113,8 +160,9 @@ async def setup(Data, channels, server, payload):
 
 async def generate_display(Data, channels, server, playerName):
     PlayerData = Data[server.id]['Battleship']['Players'][playerName]
+    print(PlayerData)
     table = "```prolog\n"+playerName+":"
-    if PlayerData['Undamaged'] <=0 :
+    if set(PlayerData['Ships']).issubset(set(PlayerData['Shots'])) :
         table += '(All Ships Sunk)'
     table += "\n#########################\n# _|A B C D E F G H I J|#\n"
     for r in range(1,11):
