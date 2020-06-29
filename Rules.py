@@ -113,3 +113,4 @@ async def setup(Data, channels, server, payload):
             except:
                 print('ERROR')
                 print(rule)
+    return Data

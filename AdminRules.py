@@ -12,7 +12,7 @@ async def on_message(Data, channels, server, payload):
     guild = server.id
     message = payload['raw']
     admins = ['Fenris Wolf#6136', 'Crorem#6962', 'iann39#8298']
-    botCharacter = '>>'
+    botCharacter = '!'
 
     #if '❤' == payload['Content']:
     #   await message.channel.send("I NEED MORE LOVE")
@@ -49,6 +49,7 @@ async def on_message(Data, channels, server, payload):
                 and splitPayload[1].lower() == "restart" and splitPayload[0] == botCharacter:
             copyfile('DiscordBot_Data.pickle',
                      'BackupDataFiles/DiscordBot_Data-'+str(datetime.datetime.now())+'.pickle')
+            await message.channel.send('Going for Restart')
             print("Going For Restart...")
             sys.exit(0)
 
@@ -57,6 +58,9 @@ async def on_message(Data, channels, server, payload):
             copyfile('DiscordBot_Data.pickle',
                      'BackupDataFiles/DiscordBot_Data-' + str(datetime.datetime.now()) + '.pickle')
             print("Going For Death...", guild)
+            await message.channel.send('Going to Die alone...')
             os.system("pkill python")
 
-
+        if len(splitPayload) == 2 and payload['Channel Type'] == 'Text' \
+                and splitPayload[1].lower() == "ping" and splitPayload[0] == botCharacter:
+            await message.channel.send('!pong')

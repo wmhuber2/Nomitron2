@@ -8,5 +8,14 @@ Global Commands: Allowed Channels: ALL
 
 ActionCommands:        Allowed Channels: actions
 
+Music Bot Commands:
+-   !play URL_LIST      adds song to playlist and plays song
+-   !play NUM           plays the Nth song in the playlist
+-   !play               resume after pause
+-   !pause              pauses song
+-   !next               plays next song in playlist
+-   !playlist           shows the playlist
+-   !stop               removes bot vrom voice and empties playlist
+
 
 This Bot's Code May Be Found At: https://github.com/wmhuber2/Nomitron2/

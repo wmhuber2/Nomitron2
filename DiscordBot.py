@@ -9,6 +9,9 @@ discord = None
 import traceback
 savefile = 'DiscordBot_Data.pickle'
 default_server_id = 707705708346343434
+
+
+
 ''' 
 Implement Modules By Placing Module Python File In Same Directory
 Modules Must Have Different Names And Be Written With Python 3 Compatibility.
@@ -101,9 +104,8 @@ class DiscordNomicBot():
             payload['Category'] = "DM"
         payload['Content'] = message.system_content.strip()
         payload['Attachments'] = {}
-
+        payload['ctx'] = self.client
         payload['Server'] = message.guild
-        print(payload['Server'])
         for file in message.attachments:
             payload['Attachments'][file.filename] = file.url
         #print(payload)
@@ -117,10 +119,11 @@ class DiscordNomicBot():
         for mod, name in zip(self.modules, self.moduleNames):
             if name in self.Data['DisabledModules']: continue
             if hasattr(mod, function):
-                if args is None: tmp = await getattr(mod, function)(self.Data, channels, server, payload)
-                else: tmp = await getattr(mod, function)(self.Data, channels, server, payload, *args)
+                if args is None:  tmp = await getattr(mod, function)(self.Data, channels, server, payload)
+                else:             tmp = await getattr(mod, function)(self.Data, channels, server, payload, *args)
 
-                if tmp is not None:  self.Data = tmp
+                print('Command Ret:', tmp)
+                if type(tmp) is dict:  self.Data = tmp
                 #else:  print("None Returned OnMessage", name)
 
     """
@@ -150,8 +153,9 @@ class DiscordNomicBot():
         self.printInfo()
 
         for server in self.client.guilds:
-            await self.passToModule('setup', server, self.servertree, None)
+            await self.passToModule('setup', server, self.servertree, {'ctx': self.client})
         self.saveData()
+        print('Setup Finished!')
 
         while 1:
             sys.stdout.flush()
