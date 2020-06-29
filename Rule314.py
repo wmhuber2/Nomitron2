@@ -37,9 +37,12 @@ async def battleship(Data, channels, server, payload, *text):
             print(d)
             if d in boats:   boats.remove(d)
             else:
-                await message.channel.send("PLease Make Sure You Have Boats of Size 5,4,3,3,2")
+                await message.channel.send("Please Make Sure You Have Boats of Size 5,4,3,3,2")
                 return
             for i in range(int(s[1:]), int(e[1:])+1):
+                if s[0]+str(i) in boat_coords:
+                    await message.channel.send("Boats Cannot Overlap")
+                    return
                 boat_coords.append(s[0]+str(i))
         elif s[1:] == e[1:]:
             d = abs(ord(s[0]) - ord(e[0]))+1
@@ -49,6 +52,9 @@ async def battleship(Data, channels, server, payload, *text):
                 await message.channel.send("PLease Make Sure You Have Boats of Size 5,4,3,3,2")
                 return
             for i in range(ord(s[0]), ord(e[0])+1):
+                if chr(i)+s[1:] in boat_coords:
+                    await message.channel.send("Boats Cannot Overlap")
+                    return
                 boat_coords.append(chr(i)+s[1:])
         else:
             await message.channel.send("Boats Must be vertical or horizontal")
