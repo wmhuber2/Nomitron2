@@ -29,7 +29,7 @@ async def die(Data, channels, server, payload, *text):
 
 async def ping(Data, channels, server, payload, *text):
     message = payload['raw']
-    await message.channel.send('!pong')
+    await message.channel.send('!pong-01')
 """
 Main Run Function
 """
