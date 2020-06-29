@@ -1,5 +1,5 @@
 #! Python3
-import sys, asyncio, os, importlib, glob, datetime, random,socket, multiprocessing, pickle
+import sys, asyncio, os, importlib, glob, datetime, random,socket, multiprocessing, pickle, re
 from shutil import copyfile
 
 
@@ -108,7 +108,7 @@ class DiscordNomicBot():
         payload['Server'] = message.guild
         for file in message.attachments:
             payload['Attachments'][file.filename] = file.url
-        #print(payload)
+        #print(payload['Content'])
         return payload
 
 
@@ -119,8 +119,10 @@ class DiscordNomicBot():
         for mod, name in zip(self.modules, self.moduleNames):
             if name in self.Data['DisabledModules']: continue
             if hasattr(mod, function):
-                if args is None:  tmp = await getattr(mod, function)(self.Data, channels, server, payload)
-                else:             tmp = await getattr(mod, function)(self.Data, channels, server, payload, *args)
+                payload_tmp = None
+                if payload is not None: payload_tmp = dict(payload)
+                if args is None:  tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp)
+                else:             tmp = await getattr(mod, function)(self.Data, dict(channels), server, payload_tmp, *args)
 
                 print('Command Ret:', tmp)
                 if type(tmp) is dict:  self.Data = tmp

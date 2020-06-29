@@ -42,10 +42,10 @@ For a Custom Command !commandMe
 async def playlist(Data, channels, server, payload, *text):
     message = payload['raw']
     playlist = "Playlist:"
-    voice_channel = message.author.voice.channel
-    if voice_channel is None:
+    if message.author.voice is None:
         await message.channel.send("You are not in a Voice Channel")
         return
+    voice_channel = message.author.voice.channel
 
     if Data[server.id]['Music'].get(voice_channel.id) is None \
             or len(Data[server.id]['Music'][voice_channel.id]['Music Queue']) == 0:
@@ -69,6 +69,9 @@ async def get_vc(ctx, voice_channel):
 async def pause(Data, channels, server, payload, *text):
     ctx = payload['ctx']
     message = payload['raw']
+    if message.author.voice is None:
+        await message.channel.send("You are not in a Voice Channel")
+        return
     voice_channel = message.author.voice.channel
     vc = await get_vc(ctx, voice_channel)
     vc.pause()
@@ -77,6 +80,9 @@ async def pause(Data, channels, server, payload, *text):
 async def next(Data, channels, server, payload, *text):
     ctx = payload['ctx']
     message = payload['raw']
+    if message.author.voice is None:
+        await message.channel.send("You are not in a Voice Channel")
+        return
     voice_channel = message.author.voice.channel
     vc = await get_vc(ctx, voice_channel)
 
@@ -84,7 +90,7 @@ async def next(Data, channels, server, payload, *text):
     index = index + 1
     if index >= len(Data[server.id]['Music'][voice_channel.id]['Music Queue']):
         index = 0
-
+    Data[server.id]['Music'][voice_channel.id]['index'] = index
     vc.stop()
     vc.play(discord.FFmpegPCMAudio(Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['path']),
             after= lambda: next(Data, channels, server, payload))
@@ -92,12 +98,13 @@ async def next(Data, channels, server, payload, *text):
 async def play(Data, channels, server, payload, *text):
     message = payload['raw']
     ctx = payload['ctx']
-    voice_channel = message.author.voice.channel
     text = payload['Content'].split(' ')[1:]
 
-    if voice_channel is None:
+    if message.author.voice is None:
         await message.channel.send("You are not in a Voice Channel")
         return
+
+    voice_channel = message.author.voice.channel
     vc = await get_vc(ctx,voice_channel)
 
     if vc.is_paused():
@@ -123,7 +130,7 @@ async def play(Data, channels, server, payload, *text):
         if index >= len(Data[server.id]['Music'][voice_channel.id]['Music Queue']):
             await message.channel.send("That is not a valid Index")
             return
-
+        Data[server.id]['Music'][voice_channel.id]['index'] = index
         await message.channel.send(
             "Now Playing: \"" + Data[server.id]['Music'][voice_channel.id]['Music Queue'][index]['title'] + "\""
         )
@@ -138,10 +145,10 @@ async def queue(Data, channels, server, payload, *text):
     author = message.author
     text = payload['Content'].split(' ')[1:]
 
-    voice_channel = message.author.voice.channel
-    if voice_channel is None:
+    if author.voice is None:
         await message.channel.send("You are not in a Voice Channel")
         return
+    voice_channel = author.voice.channel
 
     if len(text) == 0:
         await message.channel.send("Please add at least one url for a youtube video")
