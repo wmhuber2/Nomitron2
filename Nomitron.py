@@ -12,7 +12,8 @@ if __name__ == "__main__":
         except:
             print('No TMP folder. Resuming...')
         os.mkdir(tmpdir)
-    
+
+        print('Downloading From Repo')
         Repo.clone_from(rw_dir, tmpdir)
 
         root_src_dir = tmpdir
