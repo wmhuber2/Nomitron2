@@ -130,7 +130,9 @@ class DiscordNomicBot():
                     #print('Command Ret:', tmp)
                     if type(tmp) is dict:  self.Data = tmp
                 except Exception as e:
-                    print (e, e.__cause__, e.with_traceback())
+                    await self.servertree[server.id]['mod-lounge'].send(str([e, e.__cause__, e.with_traceback()]))
+                    print(e, e.__cause__, e.with_traceback())
+
                 #else:  print("None Returned OnMessage", name)
 
     """
@@ -166,7 +168,7 @@ class DiscordNomicBot():
 
         while 1:
             sys.stdout.flush()
-            await asyncio.sleep(5)
+            await asyncio.sleep(8)
             for server in self.client.guilds:
                 await self.passToModule('update', server, self.servertree, dict(payload))
             self.saveData()
