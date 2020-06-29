@@ -206,7 +206,8 @@ async def stop(Data, channels, server, payload, *text):
 
 async def setup(Data, channels, server, payload):
     Data[server.id]['Music'] = {}
-    shutil.rmtree('music_files')
+    try: shutil.rmtree('music_files')
+    except: pass
     os.mkdir('music_files')
     ctx = payload['ctx']
     vc = ctx.voice_clients
