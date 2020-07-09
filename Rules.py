@@ -32,7 +32,7 @@ async def rule(Data, channels, server, payload, *text):
                 img = None
                 with urllib.request.urlopen(flink) as res:
                     print("Loading image: " + fname)
-                    img = res.read()
+                    img = io.BytesIO(res.read())
                 await message.channel.send(file=discord.File(img, fname))
             elif len(paragraph) >1900:
                 print('Error: Paragraph too long!!! Length: ', len(paragraph))
