@@ -1,7 +1,7 @@
 #
 # Blank Module For Discord Bot
 ################################
-import pickle, sys, urllib
+import pickle, sys, urllib, discord
 
 """
 Main Run Function On Messages
@@ -22,11 +22,19 @@ async def rule(Data, channels, server, payload, *text):
             paragraph = paragraph.replace('\\xe2\\x95\\x90', ' ')
             paragraph = paragraph.replace('\\xe2\\x95\\xa1', ' ')
             paragraph = paragraph.replace('\\xe2\\x94\\x80', ' ')
-            if(len(response) + len(paragraph) + 6 > 1850):
+            if(len(response) + len(paragraph) + 6 > 1850 or paragraph.startswith(">>")):
                 #print(response)
                 await message.channel.send(response)
                 response = ""
-            if len(paragraph) >1900:
+            if(paragraph.startswith(">>")):
+                fname = paragraph.strip()[2:]
+                flink = 'https://raw.githubusercontent.com/dmouscher/nomic/master/Game_4/images/'+fname
+                img = None
+                with urllib.request.urlopen(flink) as res:
+                    print("Loading image: " + fname)
+                    img = res
+                await message.channel.send(file=discord.File(img, fname))
+            elif len(paragraph) >1900:
                 print('Error: Paragraph too long!!! Length: ', len(paragraph))
                 print(paragraph)
             else:
