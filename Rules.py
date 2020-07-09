@@ -1,7 +1,7 @@
 #
 # Blank Module For Discord Bot
 ################################
-import pickle, sys, urllib, discord
+import pickle, sys, urllib, discord, io
 
 """
 Main Run Function On Messages
