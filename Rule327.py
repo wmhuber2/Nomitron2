@@ -174,6 +174,26 @@ async def deal(Data, channels, server, payload, *text):
 
 
 async def generateChangelog(Data, channels, server):
+    async def sendNextChunk(msgNum, text):
+        try:
+            if msgNum >= len(Data[server.id]['Cards']['msg_board_id']):
+                Data[server.id]['Cards']['msg_board_id'].append(
+                    (await channels[server.id][card_channel].send('Adding Section...')).id
+                )
+            msgid = Data[server.id]['Cards']['msg_board_id'][msgNum]
+            msg = await channels[server.id][card_channel].fetch_message(msgid)
+        except:
+            msg = None
+
+        if msg is None:
+            msg = await channels[server.id][card_channel].send(table)
+            Data[server.id]['Cards']['msg_board_id'][msgNum] = msg.id
+        else:
+            await msg.edit(content=table)
+
+
+
+
     table = ""
     _checkfilesystem(Data,server)
     print(Data[server.id]['Cards'])
@@ -192,21 +212,23 @@ async def generateChangelog(Data, channels, server):
         if pos in [1,2]: continue
         table += '\n' + str(pos)+'.) '+_card2text(card)
     table += '\n#################'
+
+
+    if type(Data[server.id]['Cards']['msg_board_id']) is not list:
+        Data[server.id]['Cards']['msg_board_id'] = [await channels[server.id][card_channel].send('Updating Configuration...').id, ]
+    msgNum = 0
     for playerName in Data[server.id]['Cards']['Hand'].keys():
+        if len(table) > 1750:
+            await sendNextChunk(msgNum, table)
+            msgNum += 1
+            table = ""
+
         if len(Data[server.id]['Cards']['Hand'][playerName]) == 0: continue
         table += "\n\n**" + playerName + "**: "
         for card in Data[server.id]['Cards']['Hand'][playerName]:
             table += _card2text(card) + "     "
 
-    try:
-        msg = await channels[server.id][card_channel].fetch_message(Data[server.id]['Cards']['msg_board_id'])
-    except:
-        msg = None
-    if msg is None:
-        msg = await channels[server.id][card_channel].send(table)
-        Data[server.id]['Cards']['msg_board_id'] = msg.id
-    else:
-        await msg.edit(content=table)
+    await sendNextChunk(msgNum, table)
     return table
 
 
