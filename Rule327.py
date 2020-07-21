@@ -57,7 +57,7 @@ async def fix(Data, channels, server, payload, *text):
 
     _checkfilesystem(Data, server)
     if author not in Admins: return
-    card = None
+    cards = []
     if len(text) > 2 :
         for cardarg in text[2:]:
             card = cardarg.replace('0','').lower()
@@ -68,18 +68,20 @@ async def fix(Data, channels, server, payload, *text):
             if card < 0 or rank < 0:
                 await message.channel.send("Unrecognized Card Format")
                 return
+            cards.append(card)
     else:
-        card = _fix(1,  Data[server.id]['Cards']['Fixedcards'])
+        cards = [_fix(1,  Data[server.id]['Cards']['Fixedcards'])]
     print('Card',card)
 
-    try:
-        deckIndex = int(text[1])
-        Data[server.id]['Cards']['Deck'][deckIndex] = card
-    except ValueError:
-        player = await _getPlayer(server, text[1], message.channel)
-        if Data[server.id]['Cards']['Hand'].get(player) is None:
-            Data[server.id]['Cards']['Hand'][player] = []
-        Data[server.id]['Cards']['Hand'][player].append(card)
+    for card in cards:
+        try:
+            deckIndex = int(text[1])
+            Data[server.id]['Cards']['Deck'][deckIndex] = card
+        except ValueError:
+            player = await _getPlayer(server, text[1], message.channel)
+            if Data[server.id]['Cards']['Hand'].get(player) is None:
+                Data[server.id]['Cards']['Hand'][player] = []
+            Data[server.id]['Cards']['Hand'][player].append(card)
 
     await generateChangelog(Data, channels, server)
 
