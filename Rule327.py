@@ -177,9 +177,8 @@ async def generateChangelog(Data, channels, server):
     async def sendNextChunk(msgNum, text):
         try:
             if msgNum >= len(Data[server.id]['Cards']['msg_board_id']):
-                Data[server.id]['Cards']['msg_board_id'].append(
-                    (await channels[server.id][card_channel].send('Adding Section...')).id
-                )
+                msg = await channels[server.id][card_channel].send('Adding Section...')
+                Data[server.id]['Cards']['msg_board_id'].append( msg.id )
             msgid = Data[server.id]['Cards']['msg_board_id'][msgNum]
             msg = await channels[server.id][card_channel].fetch_message(msgid)
         except:
@@ -190,8 +189,6 @@ async def generateChangelog(Data, channels, server):
             Data[server.id]['Cards']['msg_board_id'][msgNum] = msg.id
         else:
             await msg.edit(content=table)
-
-
 
 
     table = ""
@@ -215,7 +212,8 @@ async def generateChangelog(Data, channels, server):
 
 
     if type(Data[server.id]['Cards']['msg_board_id']) is not list:
-        Data[server.id]['Cards']['msg_board_id'] = [await channels[server.id][card_channel].send('Updating Configuration...').id, ]
+        msg = await channels[server.id][card_channel].send('Updating Configuration...')
+        Data[server.id]['Cards']['msg_board_id'] = [msg.id, ]
     msgNum = 0
     for playerName in Data[server.id]['Cards']['Hand'].keys():
         if len(table) > 1750:
