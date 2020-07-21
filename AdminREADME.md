@@ -13,5 +13,6 @@ Admin: Allowed Channels: All
 - !unfix @player card   unfix card for player
 - !unfix position card  unfix card in deck position
 
+- !deal @player num     deal a number of card from deck to a player target
 This Bot's Code May Be Found At:
 https://github.com/wmhuber2/Nomitron/

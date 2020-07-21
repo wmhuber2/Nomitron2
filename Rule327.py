@@ -144,8 +144,38 @@ async def draw(Data, channels, server, payload, *text):
 
     await generateChangelog(Data, channels, server)
 
+async def deal(Data, channels, server, payload, *text):
+    message = payload['raw']
+    author = payload['Author']
+    text = payload['Content'].split(' ')
+    if author not in Admins: return
+
+    target = await _getPlayer(server, text[-2], message.channel)
+    if target is None: return
+
+    try:  numOfCards = int(text[-1])
+    except:
+        print ('Error finding number',text)
+        return
+
+    newDeck = dict()
+    drawnCards = []
+    for pos in Data[server.id]['Cards']['Deck'].keys():
+        if pos > numOfCards:   newDeck[pos - numOfCards] = Data[server.id]['Cards']['Deck'][pos]
+        else:                  drawnCards.append(Data[server.id]['Cards']['Deck'][pos])
+    Data[server.id]['Cards']['Deck'] = newDeck
+
+    drawnCards += _fix(numOfCards - len(drawnCards), Data[server.id]['Cards']['Fixedcards'])
+    if Data[server.id]['Cards']['Hand'].get(target) is None:
+        Data[server.id]['Cards']['Hand'][target] = []
+    Data[server.id]['Cards']['Hand'][target] += drawnCards
+
+    await generateChangelog(Data, channels, server)
+
+
 async def generateChangelog(Data, channels, server):
     table = ""
+    _checkfilesystem(Data,server)
     print(Data[server.id]['Cards'])
 
     table += "\n**Deck:** \n"
@@ -164,7 +194,7 @@ async def generateChangelog(Data, channels, server):
     table += '\n#################'
     for playerName in Data[server.id]['Cards']['Hand'].keys():
         if len(Data[server.id]['Cards']['Hand'][playerName]) == 0: continue
-        table += "\n**" + playerName + "**: "
+        table += "\n\n**" + playerName + "**: "
         for card in Data[server.id]['Cards']['Hand'][playerName]:
             table += _card2text(card) + "     "
 
