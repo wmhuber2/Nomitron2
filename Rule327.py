@@ -59,14 +59,15 @@ async def fix(Data, channels, server, payload, *text):
     if author not in Admins: return
     card = None
     if len(text) > 2 :
-        card = text[2].replace('0','').lower()
-        rank = "234567891pnqka".index(card[0])
-        suit = ["swords", "wands", "coins", "cups"].index(card[1:])
-        card = suit * 14 + rank
-        print('RS',rank, suit)
-        if card < 0 or rank < 0:
-            await message.channel.send("Unrecognized Card Format")
-            return
+        for cardarg in text[2:]:
+            card = cardarg.replace('0','').lower()
+            rank = "234567891pnqka".index(card[0])
+            suit = ["swords", "wands", "coins", "cups"].index(card[1:])
+            card = suit * 14 + rank
+            print('RS',rank, suit)
+            if card < 0 or rank < 0:
+                await message.channel.send("Unrecognized Card Format")
+                return
     else:
         card = _fix(1,  Data[server.id]['Cards']['Fixedcards'])
     print('Card',card)
