@@ -11,4 +11,4 @@ async def roll(Data, channels, server, payload, *text):
     diceInfo = argv[1].split('d')
     if len(diceInfo) == 2:
         randNum = numpy.random.randint(1, int(diceInfo[1])+1, int(diceInfo[0]))
-        await message.channel.send(str(sum(randNum))+' : '+str(randNum).replace(' ',', '))
+        await message.channel.send(str(sum(randNum))+' : '+str(randNum).replace('  ',' ').replace(' ',', '))
