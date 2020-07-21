@@ -135,13 +135,12 @@ async def draw(Data, channels, server, payload, *text):
     Data[server.id]['Cards']['Deck'] = newDeck
 
     drawnCards += _fix(numOfCards - len(drawnCards), Data[server.id]['Cards']['Fixedcards'])
+    if Data[server.id]['Cards']['Hand'].get(author) is None:
+        Data[server.id]['Cards']['Hand'][author] = []
     Data[server.id]['Cards']['Hand'][author] += drawnCards
 
     await generateChangelog(Data, channels, server)
 
-"""
-Update Function Called Every 10 Seconds
-"""
 async def generateChangelog(Data, channels, server):
     table = ""
     print(Data[server.id]['Cards'])
@@ -161,6 +160,7 @@ async def generateChangelog(Data, channels, server):
         table += '\n' + str(pos)+'.) '+_card2text(card)
     table += '\n#################'
     for playerName in Data[server.id]['Cards']['Hand'].keys():
+        if len(Data[server.id]['Cards']['Hand'][playerName]) == 0: continue
         table += "\n**" + playerName + "**: "
         for card in Data[server.id]['Cards']['Hand'][playerName]:
             table += _card2text(card) + "     "
@@ -175,7 +175,6 @@ async def generateChangelog(Data, channels, server):
     else:
         await msg.edit(content=table)
     return table
-
 
 
 async def setup(Data, channels, server, payload):
