@@ -19,5 +19,7 @@ Music Bot Commands:
 -   !playlist           shows the playlist
 -   !stop               removes bot vrom voice and empties playlist
 
+Card Commands:
+-   !draw num           draw num of cards from deck
 
 This Bot's Code May Be Found At: https://github.com/wmhuber2/Nomitron2/
