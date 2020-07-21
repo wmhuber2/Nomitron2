@@ -129,9 +129,9 @@ class DiscordNomicBot():
 
                     #print('Command Ret:', tmp)
                     if type(tmp) is dict:  self.Data = tmp
-                except Exception as e:
-                    await self.servertree[server.id]['mod-lounge'].send(str([e, e.__cause__, e.with_traceback()]))
-                    print(e, e.__cause__, e.with_traceback())
+                except KeyboardInterrupt as e:
+                    await self.servertree[server.id]['mod-lounge'].send(str([e, e.__cause__]))
+                    print('Error',e, e.__cause__)
 
                 #else:  print("None Returned OnMessage", name)
 
