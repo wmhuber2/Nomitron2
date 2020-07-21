@@ -11,7 +11,7 @@ def _card2text(cardnum):
     suits = ["⚔️", "<:wand:734932801266122832>", "<:coin:734932801018921063>", "🍷"]
     #suits = ["Swords", "Wands", "Coins", "Cups"]
     ranks = [":two:", ":three:", ":four:", ":five:", ":six:",
-             ":seven:", ":eight:", ":nine:", ":ten:", ":regional_indicator_p:",
+             ":seven:", ":eight:", ":nine:", ":keycap_ten:", ":regional_indicator_p:",
              ":horse:", ":regional_indicator_q:", ":regional_indicator_k:", ":regional_indicator_a:"]
     return ranks[cardnum % 14] + suits[cardnum // 14]
 
