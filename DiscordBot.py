@@ -29,7 +29,8 @@ class DiscordNomicBot():
         try:
             global discord
             discord = importlib.import_module('discord')
-        except ImportError:
+            print (discord.__version__)
+        except KeyboardInterrupt:# ImportError:
             print ("Discord Library Not Found, install by \"pip install discord\"")
             sys.exit(0)
 

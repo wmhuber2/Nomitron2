@@ -6,7 +6,6 @@ import pickle, sys, os, shutil
 import discord
 import youtube_dl
 import asyncio
-
 from discord.ext import commands
 
 
@@ -128,8 +127,6 @@ async def play(Data, channels, server, payload, *text):
 
     # play NUM
     if len(text) == 1 and text[0].isdigit():
-
-
         index = int(text[0])
         if index >= len(Data[server.id]['Music'][voice_channel.id]['Music Queue']):
             await message.channel.send("That is not a valid Index")

@@ -222,6 +222,7 @@ async def generateChangelog(Data, channels, server):
             table = ""
 
         if len(Data[server.id]['Cards']['Hand'][playerName]) == 0: continue
+        if playerName == 'Nomitron#3034': playerName = "Discard Pile"
         table += "\n\n**" + playerName + "**: "
         for card in Data[server.id]['Cards']['Hand'][playerName]:
             table += _card2text(card) + "     "
