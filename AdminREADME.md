@@ -9,6 +9,7 @@ Admin: Allowed Channels: All
 
 - !fix @player card     fix card for player
 - !fix position card    fix card in deck position
+- !fix discard card    fix card in discard Pile
 
 - !unfix @player card   unfix card for player
 - !unfix position card  unfix card in deck position

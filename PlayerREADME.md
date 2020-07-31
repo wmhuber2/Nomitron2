@@ -21,5 +21,6 @@ Music Bot Commands:
 
 Card Commands:
 -   !draw num           draw num of cards from deck
+-   !discard EmojiCard  discard a card with emoji given. PLease put a splace between emoji.
 
 This Bot's Code May Be Found At: https://github.com/wmhuber2/Nomitron2/
