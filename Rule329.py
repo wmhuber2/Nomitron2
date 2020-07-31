@@ -18,11 +18,23 @@ def _text2card(rank, suit, server):
 
     return ranks.index(rank) + suits.index(suit) * 14
 
+async def pot(Data, channels, server, payload, *text):
+    message = payload['raw']
+    author = payload['Author']
+
+    if author not in ['Fenris Wolf#6136', 'Crorem#6962']: return
+
+    text = payload['Content'].replace('  ',' ').split(' ')
+
+    num = int(text[1])
+    Data[server.id]['Cards']['Pot'] = num
+    await Rule327.generateChangelog(Data, channels, server)
+
 async def discard(Data, channels, server, payload, *text):
     message = payload['raw']
     author = payload['Author']
 
-    if author not in Admins = ['Fenris Wolf#6136', 'Crorem#6962']: return
+    if author not in ['Fenris Wolf#6136', 'Crorem#6962']: return
 
     text = payload['Content'].replace('  ',' ').split(' ')
     if len(text) == 2:
