@@ -22,6 +22,8 @@ async def discard(Data, channels, server, payload, *text):
     message = payload['raw']
     author = payload['Author']
 
+    if author not in Admins = ['Fenris Wolf#6136', 'Crorem#6962']: return 
+
     text = payload['Content'].replace('  ',' ').split(' ')
     if len(text) == 2:
         message.channel.send("PLease separate your emojis with a space. ")
